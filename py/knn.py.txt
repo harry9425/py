@@ -1,0 +1,48 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+# Load your dataset (replace 'your_dataset.csv' with your dataset file)
+data = pd.read_csv('your_dataset.csv')
+
+# Data Preprocessing
+X = data.drop('target_column', axis=1)  # Replace 'target_column' with the actual target column name
+y = data['target_column']
+
+# Split Data into Training and Testing Sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create the KNN Classifier
+k = 3  # You can adjust the value of k
+knn = KNeighborsClassifier(n_neighbors=k)
+
+# Train the Model
+knn.fit(X_train, y_train)
+
+# Make Predictions
+y_pred = knn.predict(X_test)
+
+# Evaluate the Model
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy}')
+
+# Plot the Decision Boundary
+# This part depends on the specific features in your dataset and how you want to visualize it.
+# Here's a simple example with two features.
+
+if X_train.shape[1] == 2:
+    x_min, x_max = X_train.iloc[:, 0].min() - 1, X_train.iloc[:, 0].max() + 1
+    y_min, y_max = X_train.iloc[:, 1].min() - 1, X_train.iloc[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1), np.arange(y_min, y_max, 0.1))
+    Z = knn.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    plt.contourf(xx, yy, Z, alpha=0.4)
+    plt.scatter(X_train.iloc[:, 0], X_train.iloc[:, 1], c=y_train, marker='o', s=25)
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.title('KNN Decision Boundary')
+    plt.show()

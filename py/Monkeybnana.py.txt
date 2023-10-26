@@ -1,0 +1,75 @@
+# Define the state of the problem with monkey, banana, and box locations
+initial_state = {'monkey': (0, 0), 'banana': (4, 4), 'box': (2, 2)}
+
+# Define the goal state
+goal_state = {'monkey': (4, 4), 'banana': (4, 4), 'box': (2, 2)}
+
+# Define the possible actions
+actions = ['move_up', 'move_down', 'move_left', 'move_right', 'push_up', 'push_down', 'push_left', 'push_right']
+
+# Define a function to check if a state is valid
+def is_valid(state):
+    monkey, banana, box = state['monkey'], state['banana'], state['box']
+    return all(0 <= x < 5 and 0 <= y < 5 for x, y in (monkey, banana, box))
+
+# Define a function to apply an action to a state and return the new state
+def apply_action(state, action):
+    monkey, banana, box = state['monkey'], state['banana'], state['box']
+    new_state = state.copy()
+
+    if action == 'move_up':
+        new_state['monkey'] = (monkey[0] - 1, monkey[1])
+    elif action == 'move_down':
+        new_state['monkey'] = (monkey[0] + 1, monkey[1])
+    elif action == 'move_left':
+        new_state['monkey'] = (monkey[0], monkey[1] - 1)
+    elif action == 'move_right':
+        new_state['monkey'] = (monkey[0], monkey[1] + 1)
+    elif action == 'push_up':
+        if monkey == (box[0] + 1, box[1]):
+            new_state['monkey'] = (monkey[0] - 1, monkey[1])
+            new_state['box'] = (box[0] - 1, box[1])
+    elif action == 'push_down':
+        if monkey == (box[0] - 1, box[1]):
+            new_state['monkey'] = (monkey[0] + 1, monkey[1])
+            new_state['box'] = (box[0] + 1, box[1])
+    elif action == 'push_left':
+        if monkey == (box[0], box[1] + 1):
+            new_state['monkey'] = (monkey[0], monkey[1] - 1)
+            new_state['box'] = (box[0], box[1] - 1)
+    elif action == 'push_right':
+        if monkey == (box[0], box[1] - 1):
+            new_state['monkey'] = (monkey[0], monkey[1] + 1)
+            new_state['box'] = (box[0], box[1] + 1)
+
+    if is_valid(new_state):
+        return new_state
+    else:
+        return None
+
+# Define a depth-first search function to find a solution
+def dfs(state, visited):
+    if state == goal_state:
+        return []
+
+    visited.add(tuple(state['monkey']))
+
+    for action in actions:
+        new_state = apply_action(state, action)
+
+        if new_state is not None and tuple(new_state['monkey']) not in visited:
+            solution = dfs(new_state, visited)
+
+            if solution is not None:
+                return [action] + solution
+
+    return None
+
+# Find and print the solution
+solution = dfs(initial_state, set())
+if solution:
+    print("Solution found:")
+    for action in solution:
+        print(action)
+else:
+    print("No solution found.")
